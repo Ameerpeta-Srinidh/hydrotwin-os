@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: "hydrotwin-fastapi"
+    static_configs:
+      # Use host.docker.internal since FastAPI is running natively on Windows host
+      - targets: ["host.docker.internal:8000"]
