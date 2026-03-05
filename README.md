@@ -4,11 +4,26 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 [![Docker](https://img.shields.io/badge/docker-compose-blue.svg)](https://www.docker.com/)
-[![FAANG-Ready](https://img.shields.io/badge/Architecture-Distributed_Mesh-success)](#)
 
-HydroTwin OS is a distributed infrastructure control plane designed to autonomically optimize hyperscale data centers. Instead of analyzing thermal physics, grid carbon emissions, and water usage effectiveness (WUE) as isolated problems, HydroTwin fuses them into a **Continuous Reinforcement Learning Matrix** operating atop a real-time **Kafka Event Mesh**.
+> **The Problem:** By 2027, AI data centers are projected to consume 4.2 – 6.6 billion cubic meters of water annually — half of the United Kingdom's yearly withdrawal. Current cooling logic is completely blind to regional groundwater depletion and real-time grid carbon intensity.
+> 
+> **The Solution:** HydroTwin OS is a distributed infrastructure control plane designed to autonomically optimize hyperscale data centers. Instead of analyzing thermal physics, grid carbon emissions, and water usage effectiveness (WUE) as isolated problems, HydroTwin fuses them into a **Continuous Reinforcement Learning Matrix** operating atop a real-time **Kafka Event Mesh**.
 
 By shifting cooling burdens dynamically between electrical chiller envelopes and adiabatic evaporative systems based on grid-carbon APIs, the OS mathematically guarantees Pareto-optimal sustainability via deep Soft Actor-Critic (SAC) reinforcement learning.
+
+---
+
+## 🎥 The Demo Kit
+
+### 1. The Groundwater Regulatory Dashboard
+A live Streamlit application simulating the environmental impact projection of a 50MW hyperscale datacenter on a high-stress water basin (e.g. Hyderabad).
+```bash
+# Run the predictive dashboard demo
+streamlit run demo/streamlit_app.py
+```
+
+### 2. Live AI Water Footprint Tracker (Chrome Extension)
+Included in `demo/chrome_extension/`, this local extension injects into ChatGPT/Claude instances to calculate and visualize the real-time physical water cost (in ml) of active inference streams.
 
 ---
 
