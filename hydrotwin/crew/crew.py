@@ -21,7 +21,14 @@ Usage
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any
+
+# CrewAI v1.x validates OPENAI_API_KEY at agent instantiation time.
+# Set a placeholder so the module can be imported and agents created without
+# a real key — actual LLM calls only happen inside crew.kickoff().
+if not os.environ.get("OPENAI_API_KEY"):
+    os.environ["OPENAI_API_KEY"] = "sk-hydrotwin-placeholder"
 
 from crewai import Crew, Process
 
