@@ -49,6 +49,9 @@ dependencies = [
     # Observability
     "opentelemetry-api>=1.22.0",
     "opentelemetry-sdk>=1.22.0",
+
+    # Multi-Agent Coordination (Plane 4)
+    "crewai>=0.28.0",
 ]
 
 [project.optional-dependencies]

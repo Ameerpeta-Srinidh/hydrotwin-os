@@ -3,3 +3,6 @@ pandas>=2.1.0
 numpy>=1.24.0
 pydeck>=0.8.0
 plotly>=5.18.0
+stable-baselines3>=2.3.0
+gymnasium>=0.29.0
+crewai>=0.28.0
