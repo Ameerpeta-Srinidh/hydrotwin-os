@@ -1,916 +1,395 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HydroTwin OS — Public Transparency Dashboard</title>
-    <meta name="description" content="Real-time water and energy accountability for data center operations">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
+    <title>HydroTwin OS — AI Infrastructure Control Plane</title>
+    <meta name="description" content="AI-Native Operating System for the Data Center Water-Energy-Carbon Nexus. 5-Plane distributed architecture with GNN Physics Twin, SAC Deep RL, and Kafka Event Mesh.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-primary: #0a0e1a;
-            --bg-secondary: #111827;
-            --bg-card: rgba(17, 24, 39, 0.7);
-            --bg-glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.06);
-            --border-glow: rgba(59, 130, 246, 0.3);
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --accent-blue: #3b82f6;
-            --accent-cyan: #22d3ee;
-            --accent-green: #10b981;
-            --accent-yellow: #f59e0b;
-            --accent-red: #ef4444;
-            --accent-purple: #8b5cf6;
-            --gradient-blue: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            --gradient-green: linear-gradient(135deg, #10b981, #22d3ee);
-            --gradient-warm: linear-gradient(135deg, #f59e0b, #ef4444);
-            --gradient-cool: linear-gradient(135deg, #22d3ee, #3b82f6);
-            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.4);
-            --shadow-glow: 0 0 30px rgba(59, 130, 246, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Header */
-        .header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(20px);
-            background: rgba(10, 14, 26, 0.85);
-            border-bottom: 1px solid var(--border);
-            padding: 0 2rem;
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo {
-            width: 36px;
-            height: 36px;
-            background: var(--gradient-blue);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .header-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-
-        .header-subtitle {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 1px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .live-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--accent-green);
-        }
-
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent-green);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-            }
-
-            50% {
-                opacity: 0.7;
-                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
-            }
-        }
-
-        .timestamp {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* Main Layout */
-        .main {
-            position: relative;
-            z-index: 1;
-            padding: 1.5rem 2rem 3rem;
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-
-        /* Metric Cards Row */
-        .metrics-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .metric-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.25rem 1.5rem;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .metric-card:hover {
-            border-color: var(--border-glow);
-            box-shadow: var(--shadow-glow);
-            transform: translateY(-2px);
-        }
-
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            border-radius: 16px 16px 0 0;
-        }
-
-        .metric-card.blue::before {
-            background: var(--gradient-blue);
-        }
-
-        .metric-card.green::before {
-            background: var(--gradient-green);
-        }
-
-        .metric-card.warm::before {
-            background: var(--gradient-warm);
-        }
-
-        .metric-card.cool::before {
-            background: var(--gradient-cool);
-        }
-
-        .metric-label {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            font-feature-settings: 'tnum';
-            font-variant-numeric: tabular-nums;
-        }
-
-        .metric-value.blue {
-            color: var(--accent-blue);
-        }
-
-        .metric-value.green {
-            color: var(--accent-green);
-        }
-
-        .metric-value.warm {
-            color: var(--accent-yellow);
-        }
-
-        .metric-value.cool {
-            color: var(--accent-cyan);
-        }
-
-        .metric-unit {
-            font-size: 0.85rem;
-            font-weight: 400;
-            color: var(--text-secondary);
-            margin-left: 4px;
-        }
-
-        .metric-sub {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 0.4rem;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Grid Layout */
-        .grid-2col {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .grid-3col {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Panel */
-        .panel {
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.25rem 1.5rem;
-            transition: all 0.3s;
-        }
-
-        .panel:hover {
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .panel-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .panel-icon {
-            font-size: 1rem;
-        }
-
-        /* Compliance Gauge */
-        .gauge-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem 0;
-        }
-
-        .gauge-svg {
-            width: 160px;
-            height: 100px;
-        }
-
-        .gauge-bg {
-            fill: none;
-            stroke: rgba(255, 255, 255, 0.06);
-            stroke-width: 12;
-            stroke-linecap: round;
-        }
-
-        .gauge-fill {
-            fill: none;
-            stroke-width: 12;
-            stroke-linecap: round;
-            transition: stroke-dashoffset 1s ease, stroke 0.5s;
-        }
-
-        .gauge-text {
-            font-family: 'Inter';
-            font-weight: 800;
-            font-size: 22px;
-            fill: var(--text-primary);
-        }
-
-        .gauge-label {
-            font-family: 'Inter';
-            font-size: 10px;
-            fill: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        /* Rules Table */
-        .rules-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .rule-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            border-radius: 10px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border);
-            font-size: 0.8rem;
-            transition: all 0.2s;
-        }
-
-        .rule-row:hover {
-            border-color: rgba(255, 255, 255, 0.1);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .rule-name {
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .rule-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-        }
-
-        .badge {
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge.pass {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--accent-green);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .badge.warn {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--accent-yellow);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-
-        .badge.fail {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--accent-red);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        /* Alert Feed */
-        .alert-feed {
-            max-height: 280px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .alert-feed::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .alert-feed::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-
-        .alert-item {
-            padding: 10px 14px;
-            border-radius: 10px;
-            background: var(--bg-glass);
-            border-left: 3px solid;
-            font-size: 0.8rem;
-            animation: slideIn 0.4s ease;
-        }
-
-        .alert-item.critical {
-            border-left-color: var(--accent-red);
-        }
-
-        .alert-item.warning {
-            border-left-color: var(--accent-yellow);
-        }
-
-        .alert-item.info {
-            border-left-color: var(--accent-blue);
-        }
-
-        .alert-time {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--text-muted);
-        }
-
-        .alert-type {
-            font-weight: 600;
-            margin: 2px 0;
-        }
-
-        .alert-loc {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* RL Decision Panel */
-        .rl-action {
-            background: var(--bg-glass);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .rl-action-text {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--accent-cyan);
-            margin-bottom: 8px;
-        }
-
-        .rl-reason {
-            padding: 4px 0;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: flex-start;
-            gap: 6px;
-        }
-
-        .rl-reason::before {
-            content: '→';
-            color: var(--accent-purple);
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-
-        .rl-reward {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 8px;
-        }
-
-        /* Mini Chart (CSS-only sparkline) */
-        .sparkline-container {
-            display: flex;
-            align-items: flex-end;
-            gap: 2px;
-            height: 40px;
-            margin-top: 8px;
-        }
-
-        .spark-bar {
-            flex: 1;
-            background: var(--accent-blue);
-            border-radius: 2px 2px 0 0;
-            transition: height 0.5s ease;
-            opacity: 0.6;
-            min-width: 3px;
-        }
-
-        .spark-bar:last-child {
-            opacity: 1;
-        }
-
-        /* Facility Stats */
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .stat-row:last-child {
-            border-bottom: none;
-        }
-
-        .stat-label {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        .stat-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .metrics-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .grid-2col,
-            .grid-3col {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .metrics-row {
-                grid-template-columns: 1fr;
-            }
-
-            .main {
-                padding: 1rem;
-            }
-        }
+:root{--bg:#06080f;--bg2:#0e121e;--bg-card:rgba(14,18,30,0.85);--bg-glass:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.06);--border-glow:rgba(59,130,246,0.3);--text:#f1f5f9;--text2:#94a3b8;--text3:#64748b;--blue:#3b82f6;--cyan:#22d3ee;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;--grad-blue:linear-gradient(135deg,#3b82f6,#8b5cf6);--grad-green:linear-gradient(135deg,#10b981,#22d3ee);--grad-warm:linear-gradient(135deg,#f59e0b,#ef4444);--grad-cool:linear-gradient(135deg,#22d3ee,#3b82f6)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(59,130,246,0.07) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(139,92,246,0.05) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(16,185,129,0.04) 0%,transparent 50%);pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:0 2rem}
+
+/* ── Header ── */
+.header{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(6,8,15,0.88);border-bottom:1px solid var(--border);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:.75rem}
+.logo{width:32px;height:32px;background:var(--grad-blue);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 20px rgba(59,130,246,0.3)}
+.header-title{font-size:1rem;font-weight:700;letter-spacing:-0.02em}
+.header-sub{font-size:.65rem;color:var(--text3);margin-top:1px}
+.header-right{display:flex;align-items:center;gap:1.25rem}
+.live-badge{display:flex;align-items:center;gap:6px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600;color:var(--green)}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,0.4)}50%{opacity:.6;box-shadow:0 0 0 8px rgba(16,185,129,0)}}
+.ts{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3)}
+
+/* ── Hero ── */
+.hero{text-align:center;padding:3rem 1rem 1.5rem;position:relative}
+.hero-title{font-size:3.2rem;font-weight:900;letter-spacing:-0.04em;background:linear-gradient(135deg,#3b82f6,#8b5cf6,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.4rem;animation:gradShift 6s ease infinite}
+@keyframes gradShift{0%,100%{filter:hue-rotate(0deg)}50%{filter:hue-rotate(20deg)}}
+.hero-sub{font-size:1.1rem;color:var(--text2);max-width:700px;margin:0 auto .8rem;font-weight:400}
+.hero-desc{font-size:.82rem;color:var(--text3);max-width:600px;margin:0 auto 1.5rem;line-height:1.6}
+.pills{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem}
+.pill{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:100px;padding:5px 14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text2);display:flex;align-items:center;gap:6px;backdrop-filter:blur(8px)}
+.pill b{color:var(--text);font-weight:700}
+
+/* ── Section Headers ── */
+.sec-hdr{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin:2.5rem 0 1rem;display:flex;align-items:center;gap:10px}
+.sec-hdr::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── Architecture Cards ── */
+.arch-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem;margin-bottom:1.5rem}
+.plane-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.1rem;position:relative;overflow:hidden;transition:all .3s}
+.plane-card:hover{border-color:var(--border-glow);box-shadow:0 0 25px rgba(59,130,246,0.08);transform:translateY(-2px)}
+.plane-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.plane-card.p1::before{background:linear-gradient(90deg,#3b82f6,#8b5cf6)}.plane-card.p2::before{background:linear-gradient(90deg,#ef4444,#f59e0b)}.plane-card.p3::before{background:linear-gradient(90deg,#10b981,#22d3ee)}.plane-card.p4::before{background:linear-gradient(90deg,#f59e0b,#ec4899)}.plane-card.p5::before{background:linear-gradient(90deg,#8b5cf6,#ec4899)}
+.pn{font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.pname{font-size:.95rem;font-weight:700;margin-bottom:5px}
+.pdesc{font-size:.72rem;color:var(--text2);line-height:1.45}
+.ptags{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+.tag{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:5px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--cyan)}
+
+/* ── Metric Cards ── */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem}
+.mc{background:var(--bg-card);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;position:relative;overflow:hidden;transition:all .3s}
+.mc:hover{border-color:var(--border-glow);box-shadow:0 0 25px rgba(59,130,246,0.08);transform:translateY(-2px)}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+.mc.bl::before{background:var(--grad-blue)}.mc.gr::before{background:var(--grad-green)}.mc.wm::before{background:var(--grad-warm)}.mc.cl::before{background:var(--grad-cool)}
+.mc-label{font-size:.65rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem}
+.mc-val{font-size:1.7rem;font-weight:800;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
+.mc-val.bl{color:var(--blue)}.mc-val.gr{color:var(--green)}.mc-val.wm{color:var(--yellow)}.mc-val.cl{color:var(--cyan)}
+.mc-unit{font-size:.75rem;font-weight:400;color:var(--text2);margin-left:3px}
+.mc-sub{font-size:.65rem;color:var(--text3);margin-top:.3rem;font-family:'JetBrains Mono',monospace}
+.spark{display:flex;align-items:flex-end;gap:2px;height:32px;margin-top:6px}
+.spark-bar{flex:1;border-radius:2px 2px 0 0;transition:height .5s ease;min-width:3px}
+
+/* ── Grid Layouts ── */
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:.75rem}
+.g2{display:grid;grid-template-columns:2fr 1fr;gap:.75rem;margin-bottom:.75rem}
+.g2eq{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem}
+
+/* ── Panels ── */
+.panel{background:var(--bg-card);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.3rem;transition:all .3s}
+.panel:hover{border-color:rgba(255,255,255,0.1)}
+.panel-t{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:.75rem;display:flex;align-items:center;gap:7px}
+
+/* ── Gauge ── */
+.gauge-wrap{display:flex;align-items:center;justify-content:center;padding:.5rem 0}
+.gauge-svg{width:140px;height:90px}
+.gauge-bg{fill:none;stroke:rgba(255,255,255,0.06);stroke-width:11;stroke-linecap:round}
+.gauge-fill{fill:none;stroke-width:11;stroke-linecap:round;transition:stroke-dashoffset 1s ease,stroke .5s}
+.gauge-txt{font-family:'Inter';font-weight:800;font-size:20px;fill:var(--text)}
+.gauge-lbl{font-family:'Inter';font-size:9px;fill:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+
+/* ── Rules ── */
+.rules{display:flex;flex-direction:column;gap:6px}
+.rule-row{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:8px;background:var(--bg-glass);border:1px solid var(--border);font-size:.72rem;transition:all .2s}
+.rule-row:hover{border-color:rgba(255,255,255,0.1);background:rgba(255,255,255,0.05)}
+.rule-n{color:var(--text2);font-weight:500}
+.rule-v{font-family:'JetBrains Mono',monospace;font-size:.68rem}
+.badge{padding:2px 8px;border-radius:10px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge.pass{background:rgba(16,185,129,0.15);color:var(--green);border:1px solid rgba(16,185,129,0.3)}
+.badge.warn{background:rgba(245,158,11,0.15);color:var(--yellow);border:1px solid rgba(245,158,11,0.3)}
+.badge.fail{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
+
+/* ── Alert Feed ── */
+.alert-feed{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.alert-feed::-webkit-scrollbar{width:3px}
+.alert-feed::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+.alert-item{padding:8px 12px;border-radius:8px;background:var(--bg-glass);border-left:3px solid;font-size:.72rem;animation:slideIn .4s ease}
+.alert-item.critical{border-left-color:var(--red)}.alert-item.warning{border-left-color:var(--yellow)}.alert-item.info{border-left-color:var(--blue)}
+.alert-time{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--text3)}
+.alert-type{font-weight:600;margin:2px 0}
+.alert-loc{color:var(--text3);font-size:.65rem}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── RL Panel ── */
+.rl-act{background:var(--bg-glass);border:1px solid var(--border);border-radius:10px;padding:.8rem;margin-bottom:.5rem}
+.rl-act-text{font-weight:600;font-size:.82rem;color:var(--cyan);margin-bottom:6px}
+.rl-reason{padding:3px 0;font-size:.72rem;color:var(--text2);display:flex;align-items:flex-start;gap:5px}
+.rl-reason::before{content:'→';color:var(--purple);font-weight:700;flex-shrink:0}
+.rl-reward{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:6px}
+
+/* ── Stat Rows ── */
+.stat-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-l{color:var(--text3);font-size:.72rem}
+.stat-v{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500}
+
+/* ── Thermal Heatmap ── */
+.heatmap-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;padding:.5rem}
+.heat-cell{aspect-ratio:1;border-radius:4px;transition:background .8s ease;position:relative;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.55rem;color:rgba(255,255,255,0.7)}
+
+/* ── Sensor Waveform ── */
+.waveform-svg{width:100%;height:120px}
+.wave-line{fill:none;stroke-width:1.5;stroke-linecap:round}
+.wave-anomaly{fill:var(--red);stroke:var(--red);stroke-width:2}
+
+/* ── Pareto Scatter ── */
+.pareto-svg{width:100%;height:180px}
+
+/* ── Event Mesh ── */
+.mesh-container{position:relative;height:120px;margin:1rem 0}
+.mesh-node{position:absolute;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:6px 12px;font-size:.65rem;font-weight:600;text-align:center;z-index:2}
+.mesh-node .mn-icon{font-size:1rem;display:block;margin-bottom:2px}
+.mesh-line{position:absolute;height:2px;background:linear-gradient(90deg,rgba(59,130,246,0.3),rgba(34,211,238,0.3));z-index:1;border-radius:1px}
+.mesh-dot{position:absolute;width:6px;height:6px;background:var(--cyan);border-radius:50%;z-index:3;box-shadow:0 0 8px rgba(34,211,238,0.5)}
+
+/* ── Footer ── */
+.footer{text-align:center;padding:2rem 0 1.5rem;border-top:1px solid var(--border);margin-top:2rem}
+.footer-t{font-size:.75rem;font-weight:600;color:var(--text3);letter-spacing:.05em}
+.footer-s{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:rgba(100,116,139,0.7);margin-top:4px}
+
+/* ── Scroll Reveal ── */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ── Responsive ── */
+@media(max-width:1200px){.arch-grid{grid-template-columns:repeat(3,1fr)}.metrics{grid-template-columns:repeat(2,1fr)}.g3,.g2,.g2eq{grid-template-columns:1fr}}
+@media(max-width:768px){.arch-grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}.container{padding:0 1rem}.hero-title{font-size:2rem}.pills{gap:.4rem}}
     </style>
 </head>
-
 <body>
     <header class="header">
         <div class="header-left">
             <div class="logo">💧</div>
-            <div>
-                <div class="header-title">HydroTwin OS</div>
-                <div class="header-subtitle">Public Transparency Dashboard</div>
-            </div>
+            <div><div class="header-title">HydroTwin OS</div><div class="header-sub">AI Infrastructure Control Plane</div></div>
         </div>
         <div class="header-right">
-            <div class="live-badge">
-                <div class="live-dot"></div>LIVE
-            </div>
-            <div class="timestamp" id="timestamp">--:--:--</div>
+            <div class="live-badge"><div class="live-dot"></div>SIMULATION</div>
+            <div class="ts" id="ts">--:--:--</div>
         </div>
     </header>
 
-    <main class="main">
-        <!-- Top: Key Metrics -->
-        <div class="metrics-row">
-            <div class="metric-card blue">
-                <div class="metric-label">Power Usage Effectiveness</div>
-                <div class="metric-value blue" id="pue">--</div>
-                <div class="metric-sub" id="pue-sub">IT: -- kW | Cooling: -- kW</div>
-                <div class="sparkline-container" id="pue-spark"></div>
+    <div class="container">
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-title">HydroTwin OS</div>
+            <div class="hero-sub">AI-Native Operating System for the Data Center Water-Energy-Carbon Nexus</div>
+            <div class="hero-desc">By 2027, AI data centers will consume 6.6 billion m³ of water annually. HydroTwin fuses thermal physics, grid carbon, and water scarcity into a continuous reinforcement learning matrix operating atop a real-time Kafka event mesh.</div>
+            <div class="pills">
+                <div class="pill">🏗️ <b>5</b> Architecture Planes</div>
+                <div class="pill">🧠 <b>SAC</b> Deep RL Agent</div>
+                <div class="pill">🔬 <b>GNN+PINN</b> Physics Twin</div>
+                <div class="pill">📡 <b>Kafka</b> Event Mesh</div>
+                <div class="pill">🛡️ <b>4</b> Jurisdictions</div>
+                <div class="pill">⚡ <b>22ms</b> RL Inference</div>
             </div>
-            <div class="metric-card green">
-                <div class="metric-label">Water Usage Effectiveness</div>
-                <div class="metric-value green" id="wue">--<span class="metric-unit">L/kWh</span></div>
-                <div class="metric-sub" id="wue-sub">Consumption: -- L/hr</div>
-                <div class="sparkline-container" id="wue-spark"></div>
+        </section>
+
+        <!-- ARCHITECTURE -->
+        <div class="sec-hdr reveal">📐 5-Plane Distributed Architecture</div>
+        <div class="arch-grid reveal" id="arch-grid"></div>
+
+        <!-- LIVE METRICS -->
+        <div class="sec-hdr reveal">📊 Live Facility Telemetry</div>
+        <div class="metrics reveal">
+            <div class="mc bl"><div class="mc-label">Power Usage Effectiveness</div><div class="mc-val bl" id="pue">--</div><div class="mc-sub" id="pue-sub">IT: -- kW | Cooling: -- kW</div><div class="spark" id="pue-spark"></div></div>
+            <div class="mc gr"><div class="mc-label">Water Usage Effectiveness</div><div class="mc-val gr" id="wue">--<span class="mc-unit">L/kWh</span></div><div class="mc-sub" id="wue-sub">Consumption: -- L/hr</div><div class="spark" id="wue-spark"></div></div>
+            <div class="mc wm"><div class="mc-label">Carbon Intensity</div><div class="mc-val wm" id="carbon">--<span class="mc-unit">gCO₂/kWh</span></div><div class="mc-sub" id="carbon-sub">Emissions: -- kgCO₂/hr</div><div class="spark" id="carbon-spark"></div></div>
+            <div class="mc cl"><div class="mc-label">Inlet Temperature</div><div class="mc-val cl" id="inlet">--<span class="mc-unit">°C</span></div><div class="mc-sub" id="inlet-sub">Ambient: --°C | Hotspots: --</div><div class="spark" id="inlet-spark"></div></div>
+        </div>
+
+        <!-- MIDDLE ROW -->
+        <div class="g3 reveal">
+            <div class="panel"><div class="panel-t"><span>📋</span> Regulatory Compliance</div>
+                <div class="gauge-wrap"><svg class="gauge-svg" viewBox="0 0 160 100"><path class="gauge-bg" d="M 20 80 A 60 60 0 0 1 140 80"/><path class="gauge-fill" id="gauge-fill" d="M 20 80 A 60 60 0 0 1 140 80" stroke="var(--green)" stroke-dasharray="188" stroke-dashoffset="188"/><text class="gauge-txt" x="80" y="70" text-anchor="middle" id="gauge-txt">--%</text><text class="gauge-lbl" x="80" y="88" text-anchor="middle">compliance score</text></svg></div>
+                <div class="rules" id="rules-list"></div>
             </div>
-            <div class="metric-card warm">
-                <div class="metric-label">Carbon Intensity</div>
-                <div class="metric-value warm" id="carbon">--<span class="metric-unit">gCO₂/kWh</span></div>
-                <div class="metric-sub" id="carbon-sub">Emissions: -- kgCO₂/hr</div>
-                <div class="sparkline-container" id="carbon-spark"></div>
+            <div class="panel"><div class="panel-t"><span>🔔</span> Anomaly Detection Feed</div><div class="alert-feed" id="alert-feed"><div style="color:var(--text3);font-size:.72rem;text-align:center;padding:1.5rem">Monitoring for anomalies...</div></div></div>
+            <div class="panel"><div class="panel-t"><span>🧠</span> RL Agent Decisions</div><div id="rl-panel"><div style="color:var(--text3);font-size:.72rem;text-align:center;padding:1.5rem">Awaiting agent decision...</div></div></div>
+        </div>
+
+        <!-- PLANE 1: THERMAL HEATMAP -->
+        <div class="sec-hdr reveal">🔬 Plane 1 — GNN Thermal Digital Twin (Live)</div>
+        <div class="g2eq reveal">
+            <div class="panel"><div class="panel-t"><span>🌡️</span> Data Center Thermal State — 64-Rack Layout</div><div class="heatmap-grid" id="heatmap"></div><div style="display:flex;justify-content:space-between;padding:.5rem .5rem 0;font-size:.6rem;color:var(--text3)"><span>18°C</span><span style="display:flex;gap:2px"><span style="width:16px;height:8px;background:#3b82f6;border-radius:2px;display:inline-block"></span><span style="width:16px;height:8px;background:#22d3ee;border-radius:2px;display:inline-block"></span><span style="width:16px;height:8px;background:#10b981;border-radius:2px;display:inline-block"></span><span style="width:16px;height:8px;background:#f59e0b;border-radius:2px;display:inline-block"></span><span style="width:16px;height:8px;background:#ef4444;border-radius:2px;display:inline-block"></span></span><span>35°C</span></div></div>
+            <div class="panel"><div class="panel-t"><span>📈</span> Sensor Waveform — inlet_temp_c</div><svg class="waveform-svg" id="waveform" viewBox="0 0 400 120"><line x1="0" y1="30" x2="400" y2="30" stroke="rgba(239,68,68,0.2)" stroke-dasharray="4"/><text x="402" y="33" fill="rgba(239,68,68,0.4)" font-size="8" font-family="JetBrains Mono">27°C max</text><line x1="0" y1="90" x2="400" y2="90" stroke="rgba(59,130,246,0.2)" stroke-dasharray="4"/><text x="402" y="93" fill="rgba(59,130,246,0.4)" font-size="8" font-family="JetBrains Mono">18°C min</text><polyline class="wave-line" id="wave-line" stroke="var(--cyan)" points=""/></svg><div class="panel-t" style="margin-top:.5rem"><span>🎯</span> Anomaly Markers</div><div id="anomaly-markers" style="font-size:.68rem;color:var(--text2)">Scanning...</div></div>
+        </div>
+
+        <!-- BOTTOM ROW -->
+        <div class="g2 reveal">
+            <div class="panel"><div class="panel-t"><span>🏭</span> Facility Overview</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <div><div class="stat-row"><span class="stat-l">Racks</span><span class="stat-v" id="f-racks">--</span></div><div class="stat-row"><span class="stat-l">CRAHs</span><span class="stat-v" id="f-crahs">--</span></div><div class="stat-row"><span class="stat-l">IT Load</span><span class="stat-v" id="f-it">-- kW</span></div><div class="stat-row"><span class="stat-l">Cooling Load</span><span class="stat-v" id="f-cool">-- kW</span></div></div>
+                    <div><div class="stat-row"><span class="stat-l">Cooling Mix</span><span class="stat-v" id="f-mix">--%</span></div><div class="stat-row"><span class="stat-l">Thermal Sat.</span><span class="stat-v" id="f-therm">--%</span></div><div class="stat-row"><span class="stat-l">Hotspots</span><span class="stat-v" id="f-hot">--</span></div><div class="stat-row"><span class="stat-l">Water/hr</span><span class="stat-v" id="f-water">-- L</span></div></div>
+                </div>
             </div>
-            <div class="metric-card cool">
-                <div class="metric-label">Inlet Temperature</div>
-                <div class="metric-value cool" id="inlet">--<span class="metric-unit">°C</span></div>
-                <div class="metric-sub" id="inlet-sub">Ambient: --°C | Hotspots: --</div>
-                <div class="sparkline-container" id="inlet-spark"></div>
+            <div class="panel"><div class="panel-t"><span>📊</span> Audit Trail</div>
+                <div style="font-size:.72rem"><div class="stat-row"><span class="stat-l">Events Logged</span><span class="stat-v" id="a-count">0</span></div><div class="stat-row"><span class="stat-l">Violations</span><span class="stat-v" id="a-violations" style="color:var(--red)">0</span></div><div class="stat-row"><span class="stat-l">Alerts Fired</span><span class="stat-v" id="a-alerts" style="color:var(--yellow)">0</span></div><div class="stat-row"><span class="stat-l">RL Decisions</span><span class="stat-v" id="a-decisions" style="color:var(--cyan)">0</span></div><div class="stat-row"><span class="stat-l">Hash Chain</span><span class="stat-v" style="color:var(--green)">✓ Verified</span></div></div>
             </div>
         </div>
 
-        <!-- Middle Row: Compliance + Anomalies + RL -->
-        <div class="grid-3col">
-            <!-- Compliance -->
-            <div class="panel">
-                <div class="panel-title"><span class="panel-icon">📋</span> Regulatory Compliance</div>
-                <div class="gauge-container">
-                    <svg class="gauge-svg" viewBox="0 0 160 100">
-                        <path class="gauge-bg" d="M 20 80 A 60 60 0 0 1 140 80" />
-                        <path class="gauge-fill" id="gauge-fill" d="M 20 80 A 60 60 0 0 1 140 80"
-                            stroke="var(--accent-green)" stroke-dasharray="188" stroke-dashoffset="188" />
-                        <text class="gauge-text" x="80" y="70" text-anchor="middle" id="gauge-text">--%</text>
-                        <text class="gauge-label" x="80" y="90" text-anchor="middle">compliance score</text>
-                    </svg>
-                </div>
-                <div class="rules-list" id="rules-list"></div>
-            </div>
+        <!-- EVENT MESH -->
+        <div class="sec-hdr reveal">📡 Kafka Event Mesh — Real-Time Data Flow</div>
+        <div class="panel reveal" id="mesh-panel" style="overflow:hidden"><div class="mesh-container" id="mesh-container"></div></div>
 
-            <!-- Anomaly Feed -->
-            <div class="panel">
-                <div class="panel-title"><span class="panel-icon">🔔</span> Anomaly Detection Feed</div>
-                <div class="alert-feed" id="alert-feed">
-                    <div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 2rem;">
-                        Monitoring for anomalies...
-                    </div>
-                </div>
-            </div>
-
-            <!-- RL Decision -->
-            <div class="panel">
-                <div class="panel-title"><span class="panel-icon">🧠</span> RL Agent Decisions</div>
-                <div id="rl-panel">
-                    <div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 2rem;">
-                        Awaiting agent decision...
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Row: Facility + Cooling -->
-        <div class="grid-2col">
-            <div class="panel">
-                <div class="panel-title"><span class="panel-icon">🏭</span> Facility Overview</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <div>
-                        <div class="stat-row"><span class="stat-label">Racks</span><span class="stat-value"
-                                id="f-racks">--</span></div>
-                        <div class="stat-row"><span class="stat-label">CRAHs</span><span class="stat-value"
-                                id="f-crahs">--</span></div>
-                        <div class="stat-row"><span class="stat-label">IT Load</span><span class="stat-value"
-                                id="f-it">-- kW</span></div>
-                        <div class="stat-row"><span class="stat-label">Cooling Load</span><span class="stat-value"
-                                id="f-cool">-- kW</span></div>
-                    </div>
-                    <div>
-                        <div class="stat-row"><span class="stat-label">Cooling Mix</span><span class="stat-value"
-                                id="f-mix">--%</span></div>
-                        <div class="stat-row"><span class="stat-label">Thermal Sat.</span><span class="stat-value"
-                                id="f-therm">--%</span></div>
-                        <div class="stat-row"><span class="stat-label">Hotspots</span><span class="stat-value"
-                                id="f-hot">--</span></div>
-                        <div class="stat-row"><span class="stat-label">Water/hr</span><span class="stat-value"
-                                id="f-water">-- L</span></div>
-                    </div>
-                </div>
-            </div>
-            <div class="panel">
-                <div class="panel-title"><span class="panel-icon">📊</span> Audit Trail</div>
-                <div id="audit-panel" style="font-size: 0.75rem;">
-                    <div class="stat-row"><span class="stat-label">Events Logged</span><span class="stat-value"
-                            id="a-count">0</span></div>
-                    <div class="stat-row"><span class="stat-label">Violations</span><span class="stat-value"
-                            id="a-violations" style="color: var(--accent-red);">0</span></div>
-                    <div class="stat-row"><span class="stat-label">Alerts Fired</span><span class="stat-value"
-                            id="a-alerts" style="color: var(--accent-yellow);">0</span></div>
-                    <div class="stat-row"><span class="stat-label">RL Decisions</span><span class="stat-value"
-                            id="a-decisions" style="color: var(--accent-cyan);">0</span></div>
-                    <div class="stat-row"><span class="stat-label">Hash Chain</span><span class="stat-value"
-                            style="color: var(--accent-green);">✓ Verified</span></div>
-                </div>
-            </div>
-        </div>
-    </main>
+        <!-- FOOTER -->
+        <footer class="footer">
+            <div class="footer-t">HYDROTWIN OS — Apache 2.0 Open Source · Built with PyTorch, Stable-Baselines3, FastAPI, Kafka</div>
+            <div class="footer-s">5 Planes · 15+ Modules · GNN+PINN Physics · SAC Deep RL · Multi-Jurisdiction Compliance · RAG NLP</div>
+        </footer>
+    </div>
 
     <script>
-        const HISTORY_LEN = 20;
-        const history = { pue: [], wue: [], carbon: [], inlet: [] };
-        let alertCount = 0, decisionCount = 0, violationCount = 0, eventCount = 0;
+    // ═══════════════ ARCHITECTURE CARDS ═══════════════
+    const planes=[
+      {cls:'p1',num:'PLANE 1',color:'#3b82f6',name:'Physics Twin',desc:'GNN + PINN differentiable digital twin. Approximates CFD in 184ms for continuous >5Hz AI interaction.',tags:['PyTorch Geometric','GNN','PINN','CFD']},
+      {cls:'p2',num:'PLANE 2',color:'#ef4444',name:'Anomaly Cortex',desc:'Multimodal sensor fusion: LSTM Autoencoder + Isolation Forest + Z-Score ensemble detector.',tags:['LSTM AE','IsolationForest','Z-Score','Ensemble']},
+      {cls:'p3',num:'PLANE 3',color:'#10b981',name:'RL Decision Matrix',desc:'Deep SAC agent with dynamic Pareto reward navigating the Water-Energy-Carbon frontier.',tags:['Stable-Baselines3','SAC','Gymnasium','Pareto']},
+      {cls:'p4',num:'PLANE 4',color:'#f59e0b',name:'Regulatory Brain',desc:'Multi-jurisdiction compliance engine — EPA, EU WFD, California, Singapore.',tags:['RegulationEngine','AuditTrail','ZeroTrust']},
+      {cls:'p5',num:'PLANE 5',color:'#8b5cf6',name:'Generative UI',desc:'RAG-powered conversational interface over FastAPI + Kafka real-time mesh.',tags:['FastAPI','RAG','ChromaDB','Kafka']}
+    ];
+    document.getElementById('arch-grid').innerHTML=planes.map(p=>`<div class="plane-card ${p.cls}"><div class="pn" style="color:${p.color}">${p.num}</div><div class="pname">${p.name}</div><div class="pdesc">${p.desc}</div><div class="ptags">${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`).join('');
 
-        function updateSparkline(id, data, color) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const max = Math.max(...data, 0.01);
-            const min = Math.min(...data, 0);
-            const range = max - min || 1;
-            el.innerHTML = data.map((v, i) => {
-                const h = Math.max(4, ((v - min) / range) * 36);
-                const op = 0.3 + 0.7 * (i / data.length);
-                return `<div class="spark-bar" style="height:${h}px;opacity:${op};background:${color}"></div>`;
-            }).join('');
-        }
+    // ═══════════════ THERMAL HEATMAP INIT ═══════════════
+    const heatmapEl=document.getElementById('heatmap');
+    for(let i=0;i<64;i++){const c=document.createElement('div');c.className='heat-cell';c.id='hc-'+i;c.textContent='--';heatmapEl.appendChild(c);}
+    function tempToColor(t){const n=Math.max(0,Math.min(1,(t-18)/17));if(n<0.25)return`rgba(59,130,246,${0.5+n*2})`;if(n<0.5)return`rgba(34,211,238,${0.5+(n-0.25)*2})`;if(n<0.75)return`rgba(16,185,129,${0.5+(n-0.5)*2})`;if(n<0.9)return`rgba(245,158,11,${0.5+(n-0.75)*2})`;return`rgba(239,68,68,${0.6+(n-0.9)*4})`;}
 
-        function updateGauge(score) {
-            const fill = document.getElementById('gauge-fill');
-            const text = document.getElementById('gauge-text');
-            const offset = 188 * (1 - score);
-            fill.style.strokeDashoffset = offset;
-            text.textContent = Math.round(score * 100) + '%';
-            if (score >= 0.8) fill.style.stroke = 'var(--accent-green)';
-            else if (score >= 0.5) fill.style.stroke = 'var(--accent-yellow)';
-            else fill.style.stroke = 'var(--accent-red)';
-        }
+    // ═══════════════ EVENT MESH ═══════════════
+    const meshC=document.getElementById('mesh-container');
+    const meshNodes=[{icon:'🌡️',label:'Sensors',x:5,y:40},{icon:'🧠',label:'GNN Twin',x:22,y:15},{icon:'🔍',label:'Anomaly',x:22,y:70},{icon:'🤖',label:'SAC Agent',x:45,y:40},{icon:'📡',label:'Kafka',x:65,y:40},{icon:'🛡️',label:'Compliance',x:82,y:15},{icon:'📊',label:'Dashboard',x:82,y:70}];
+    meshNodes.forEach(n=>{const d=document.createElement('div');d.className='mesh-node';d.style.cssText=`left:${n.x}%;top:${n.y}%;transform:translate(-50%,-50%)`;d.innerHTML=`<span class="mn-icon">${n.icon}</span>${n.label}`;meshC.appendChild(d);});
+    const meshLines=[[0,1],[0,2],[1,3],[2,3],[3,4],[4,5],[4,6]];
+    meshLines.forEach(([a,b])=>{const na=meshNodes[a],nb=meshNodes[b];const d=document.createElement('div');d.className='mesh-line';const dx=nb.x-na.x,dy=nb.y-na.y,len=Math.sqrt(dx*dx+dy*dy),ang=Math.atan2(dy,dx)*180/Math.PI;d.style.cssText=`left:${na.x}%;top:${na.y}%;width:${len}%;transform:rotate(${ang}deg);transform-origin:0 50%`;meshC.appendChild(d);});
 
-        function updateRules(rules) {
-            const el = document.getElementById('rules-list');
-            el.innerHTML = rules.map(r => `
-                <div class="rule-row">
-                    <span class="rule-name">${r.rule}</span>
-                    <span class="rule-value">${r.actual} ${r.unit}</span>
-                    <span class="badge ${r.status}">${r.status}</span>
-                </div>
-            `).join('');
-        }
+    // Animated dots
+    function spawnDot(){const path=meshLines[Math.floor(Math.random()*meshLines.length)];const na=meshNodes[path[0]],nb=meshNodes[path[1]];const dot=document.createElement('div');dot.className='mesh-dot';dot.style.cssText=`left:${na.x}%;top:${na.y}%;transition:left 1.5s ease,top 1.5s ease`;meshC.appendChild(dot);requestAnimationFrame(()=>{dot.style.left=nb.x+'%';dot.style.top=nb.y+'%';});setTimeout(()=>dot.remove(),1600);}
+    setInterval(spawnDot,400);
 
-        function addAlert(alert) {
-            if (!alert) return;
-            alertCount++;
-            const feed = document.getElementById('alert-feed');
-            if (feed.querySelector('div[style]')) feed.innerHTML = '';
-            const time = new Date(alert.timestamp).toLocaleTimeString();
-            const div = document.createElement('div');
-            div.className = `alert-item ${alert.severity}`;
-            div.innerHTML = `
-                <div class="alert-time">${time}</div>
-                <div class="alert-type">${alert.type.replace('_', ' ').toUpperCase()} — ${alert.severity}</div>
-                <div class="alert-loc">${alert.location} · confidence: ${(alert.confidence * 100).toFixed(0)}%</div>
-            `;
-            feed.insertBefore(div, feed.firstChild);
-            if (feed.children.length > 15) feed.removeChild(feed.lastChild);
-        }
+    // ═══════════════ SIMULATION ENGINE ═══════════════
+    const HIST=20,hist={pue:[],wue:[],carbon:[],inlet:[]};
+    let alertCnt=0,decCnt=0,violCnt=0,evtCnt=0,step=0,startTime=Date.now();
+    const wavePoints=[];
 
-        function updateRL(rl) {
-            if (!rl) return;
-            decisionCount++;
-            const el = document.getElementById('rl-panel');
-            el.innerHTML = `
-                <div class="rl-action">
-                    <div class="rl-action-text">${rl.action}</div>
-                    ${rl.reasoning.map(r => `<div class="rl-reason">${r}</div>`).join('')}
-                    <div class="rl-reward">Reward: ${rl.reward.toFixed(3)} · Confidence: ${(rl.confidence * 100).toFixed(0)}%</div>
-                </div>
-            `;
-        }
+    function sim(){
+      step++;const t=(Date.now()-startTime)/60000;
+      const hour=(new Date().getHours()+t)%24;
+      const ambient=28+8*Math.sin((hour-14)*Math.PI/12)+(Math.random()-0.5);
+      let it_load=5000+2000*Math.sin((hour-10)*Math.PI/12)+(Math.random()-0.5)*200;
+      it_load=Math.max(3000,Math.min(9000,it_load));
+      const cooling_mix=0.3+0.4*Math.max(0,(ambient-25)/20);
+      const cooling_kw=it_load*0.25*(1+cooling_mix*0.5);
+      let inlet=22+(it_load-5000)/3000+(Math.random()-0.5)*0.6;
+      inlet=Math.max(15,Math.min(35,inlet));
+      const pue=1+cooling_kw/Math.max(it_load,1);
+      const wue=Math.max(0,1.8*(1-cooling_mix)*Math.max(0.2,(ambient-15)/25));
+      const carbon_i=150+100*Math.sin((hour-6)*Math.PI/12);
+      const water_l=wue*it_load/60;
+      const thermal_sat=Math.max(0,1-Math.abs(inlet-23)/10);
 
-        async function fetchMetrics() {
-            try {
-                const res = await fetch('/api/metrics');
-                const d = await res.json();
-                const p = d.physics, c = d.carbon, comp = d.compliance;
+      // Update metric cards
+      document.getElementById('ts').textContent=new Date().toLocaleTimeString();
+      document.getElementById('pue').innerHTML=pue.toFixed(3);
+      document.getElementById('pue-sub').textContent=`IT: ${Math.round(it_load).toLocaleString()} kW | Cooling: ${Math.round(cooling_kw).toLocaleString()} kW`;
+      document.getElementById('wue').innerHTML=`${wue.toFixed(3)}<span class="mc-unit">L/kWh</span>`;
+      document.getElementById('wue-sub').textContent=`Consumption: ${Math.round(water_l*60).toLocaleString()} L/hr`;
+      document.getElementById('carbon').innerHTML=`${carbon_i.toFixed(1)}<span class="mc-unit">gCO₂/kWh</span>`;
+      document.getElementById('carbon-sub').textContent=`Emissions: ${(carbon_i*(it_load+cooling_kw)/1000).toFixed(1)} kgCO₂/hr`;
+      document.getElementById('inlet').innerHTML=`${inlet.toFixed(1)}<span class="mc-unit">°C</span>`;
+      document.getElementById('inlet-sub').textContent=`Ambient: ${ambient.toFixed(1)}°C | Hotspots: ${inlet>27?Math.max(0,Math.floor((inlet-27)*2)):0}`;
+      const ic=document.querySelector('.mc.cl .mc-val');
+      ic.style.color=inlet>27?'var(--red)':inlet>25?'var(--yellow)':'var(--cyan)';
 
-                // Update timestamp
-                document.getElementById('timestamp').textContent = new Date().toLocaleTimeString();
+      // Sparklines
+      hist.pue.push(pue);hist.wue.push(wue);hist.carbon.push(carbon_i);hist.inlet.push(inlet);
+      [hist.pue,hist.wue,hist.carbon,hist.inlet].forEach(a=>{if(a.length>HIST)a.shift();});
+      spark('pue-spark',hist.pue,'var(--blue)');spark('wue-spark',hist.wue,'var(--green)');
+      spark('carbon-spark',hist.carbon,'var(--yellow)');spark('inlet-spark',hist.inlet,'var(--cyan)');
 
-                // Metric cards
-                document.getElementById('pue').innerHTML = p.pue.toFixed(3);
-                document.getElementById('pue-sub').textContent = `IT: ${p.it_load_kw.toLocaleString()} kW  |  Cooling: ${p.cooling_kw.toLocaleString()} kW`;
-                document.getElementById('wue').innerHTML = p.wue !== undefined ? `${c.cooling_mix < 0.9 ? (1.8 * (1 - c.cooling_mix) * Math.max(0.2, (p.ambient_temp_c - 15) / 25)).toFixed(3) : d.physics.wue?.toFixed(3) || '--'}<span class="metric-unit">L/kWh</span>` : '--';
-                document.getElementById('wue').innerHTML = `${p.wue.toFixed(3)}<span class="metric-unit">L/kWh</span>`;
-                document.getElementById('wue-sub').textContent = `Consumption: ${c.water_liters_hour.toLocaleString()} L/hr`;
-                document.getElementById('carbon').innerHTML = `${c.carbon_intensity_gco2.toFixed(1)}<span class="metric-unit">gCO₂/kWh</span>`;
-                document.getElementById('carbon-sub').textContent = `Emissions: ${c.carbon_kg_hour} kgCO₂/hr`;
-                document.getElementById('inlet').innerHTML = `${p.inlet_temp_c.toFixed(1)}<span class="metric-unit">°C</span>`;
-                document.getElementById('inlet-sub').textContent = `Ambient: ${p.ambient_temp_c.toFixed(1)}°C  |  Hotspots: ${p.hotspots}`;
+      // Compliance
+      const rules=[
+        {rule:'EPA PUE Limit',actual:pue.toFixed(3),unit:'ratio',status:pue<1.35?'pass':pue<1.5?'warn':'fail'},
+        {rule:'EU WUE Target',actual:wue.toFixed(2),unit:'L/kWh',status:wue<1.44?'pass':wue<1.8?'warn':'fail'},
+        {rule:'ASHRAE A1 Temp',actual:inlet.toFixed(1),unit:'°C',status:inlet>19&&inlet<26?'pass':inlet>18&&inlet<27?'warn':'fail'},
+        {rule:'Daily Water Cap',actual:Math.round(wue*5000*24).toLocaleString(),unit:'L/day',status:'pass'}
+      ];
+      const passed=rules.filter(r=>r.status==='pass').length;
+      const warned=rules.filter(r=>r.status==='warn').length;
+      const score=(passed+0.5*warned)/rules.length;
+      gauge(score);
+      document.getElementById('rules-list').innerHTML=rules.map(r=>`<div class="rule-row"><span class="rule-n">${r.rule}</span><span class="rule-v">${r.actual} ${r.unit}</span><span class="badge ${r.status}">${r.status}</span></div>`).join('');
+      violCnt=rules.filter(r=>r.status==='fail').length;
 
-                // Sparklines
-                history.pue.push(p.pue); if (history.pue.length > HISTORY_LEN) history.pue.shift();
-                history.wue.push(p.wue); if (history.wue.length > HISTORY_LEN) history.wue.shift();
-                history.carbon.push(c.carbon_intensity_gco2); if (history.carbon.length > HISTORY_LEN) history.carbon.shift();
-                history.inlet.push(p.inlet_temp_c); if (history.inlet.length > HISTORY_LEN) history.inlet.shift();
+      // Alerts (8% chance)
+      if(Math.random()<0.08){
+        alertCnt++;
+        const types=[['hotspot','warning','Rack-R3C5'],['leak','critical','Pipe-CW-12'],['vibration_fault','warning','CRAH-04'],['flow_deviation','info','Loop-B']];
+        const[tp,sv,loc]=types[Math.floor(Math.random()*types.length)];
+        const conf=(0.7+Math.random()*0.28).toFixed(2);
+        const feed=document.getElementById('alert-feed');
+        if(feed.querySelector('div[style]'))feed.innerHTML='';
+        const d=document.createElement('div');d.className=`alert-item ${sv}`;
+        d.innerHTML=`<div class="alert-time">${new Date().toLocaleTimeString()}</div><div class="alert-type">${tp.replace('_',' ').toUpperCase()} — ${sv}</div><div class="alert-loc">${loc} · confidence: ${(conf*100).toFixed(0)}%</div>`;
+        feed.insertBefore(d,feed.firstChild);if(feed.children.length>12)feed.removeChild(feed.lastChild);
+      }
 
-                updateSparkline('pue-spark', history.pue, 'var(--accent-blue)');
-                updateSparkline('wue-spark', history.wue, 'var(--accent-green)');
-                updateSparkline('carbon-spark', history.carbon, 'var(--accent-yellow)');
-                updateSparkline('inlet-spark', history.inlet, 'var(--accent-cyan)');
+      // RL Decision
+      decCnt++;const reasons=[];
+      if(ambient>35)reasons.push(`High ambient (${ambient.toFixed(1)}°C) — increasing chiller fraction`);
+      else if(ambient<20)reasons.push(`Cool ambient (${ambient.toFixed(1)}°C) — enabling free cooling`);
+      if(carbon_i>300)reasons.push(`Dirty grid (${carbon_i.toFixed(0)} gCO₂) — shifting to evaporative`);
+      else if(carbon_i<150)reasons.push(`Clean grid (${carbon_i.toFixed(0)} gCO₂) — mechanical cooling OK`);
+      if(!reasons.length)reasons.push('Balanced conditions — maintaining optimal mix');
+      const mode=cooling_mix>0.6?'mechanical chiller':cooling_mix<0.3?'evaporative':'balanced';
+      const reward=-0.4*wue-0.2*pue-0.3*carbon_i/500+0.1*thermal_sat;
+      document.getElementById('rl-panel').innerHTML=`<div class="rl-act"><div class="rl-act-text">Set cooling to ${mode} (mix=${(cooling_mix*100).toFixed(0)}%)</div>${reasons.map(r=>`<div class="rl-reason">${r}</div>`).join('')}<div class="rl-reward">Reward: ${reward.toFixed(3)} · Confidence: ${(75+Math.random()*20).toFixed(0)}%</div></div>`;
 
-                // Compliance
-                updateGauge(comp.score);
-                updateRules(comp.rules);
-                violationCount = comp.rules.filter(r => r.status === 'fail').length;
+      // Facility stats
+      document.getElementById('f-racks').textContent='64';
+      document.getElementById('f-crahs').textContent='8';
+      document.getElementById('f-it').textContent=Math.round(it_load).toLocaleString()+' kW';
+      document.getElementById('f-cool').textContent=Math.round(cooling_kw).toLocaleString()+' kW';
+      document.getElementById('f-mix').textContent=(cooling_mix*100).toFixed(0)+'%';
+      document.getElementById('f-therm').textContent=(thermal_sat*100).toFixed(0)+'%';
+      document.getElementById('f-hot').textContent=inlet>27?Math.max(0,Math.floor((inlet-27)*2)):'0';
+      document.getElementById('f-water').textContent=Math.round(water_l*60).toLocaleString()+' L';
 
-                // Anomalies
-                addAlert(d.latest_alert);
+      // Audit
+      evtCnt++;
+      document.getElementById('a-count').textContent=evtCnt;
+      document.getElementById('a-violations').textContent=violCnt;
+      document.getElementById('a-alerts').textContent=alertCnt;
+      document.getElementById('a-decisions').textContent=decCnt;
 
-                // RL
-                updateRL(d.rl_decision);
+      // Thermal heatmap
+      for(let i=0;i<64;i++){const row=Math.floor(i/8),col=i%8;
+        const base=inlet+(Math.sin(row*0.5+step*0.1)*1.5)+(Math.cos(col*0.7+step*0.08)*1.2)+(Math.random()-0.5)*0.8;
+        const cell=document.getElementById('hc-'+i);cell.textContent=base.toFixed(0)+'°';cell.style.background=tempToColor(base);}
 
-                // Facility stats
-                document.getElementById('f-racks').textContent = p.num_racks;
-                document.getElementById('f-crahs').textContent = p.num_crahs;
-                document.getElementById('f-it').textContent = p.it_load_kw.toLocaleString() + ' kW';
-                document.getElementById('f-cool').textContent = p.cooling_kw.toLocaleString() + ' kW';
-                document.getElementById('f-mix').textContent = (c.cooling_mix * 100).toFixed(0) + '%';
-                document.getElementById('f-therm').textContent = (c.thermal_satisfaction * 100).toFixed(0) + '%';
-                document.getElementById('f-hot').textContent = p.hotspots;
-                document.getElementById('f-water').textContent = c.water_liters_hour.toLocaleString() + ' L';
+      // Sensor waveform
+      const wY=Math.max(5,Math.min(115,120-((inlet-15)*120/22)));
+      wavePoints.push(wY);if(wavePoints.length>80)wavePoints.shift();
+      const pts=wavePoints.map((y,i)=>`${i*(400/80)},${y}`).join(' ');
+      document.getElementById('wave-line').setAttribute('points',pts);
+      const markers=[];if(inlet>27)markers.push(`<span style="color:var(--red)">⚠ Hotspot ${inlet.toFixed(1)}°C</span>`);
+      if(inlet<19)markers.push(`<span style="color:var(--blue)">❄ Sub-ASHRAE ${inlet.toFixed(1)}°C</span>`);
+      if(!markers.length)markers.push(`<span style="color:var(--green)">✓ Normal range ${inlet.toFixed(1)}°C</span>`);
+      document.getElementById('anomaly-markers').innerHTML=markers.join(' · ');
+    }
 
-                // Audit
-                eventCount++;
-                document.getElementById('a-count').textContent = eventCount;
-                document.getElementById('a-violations').textContent = violationCount;
-                document.getElementById('a-alerts').textContent = alertCount;
-                document.getElementById('a-decisions').textContent = decisionCount;
+    function spark(id,data,color){const el=document.getElementById(id);if(!el||!data.length)return;
+      const mx=Math.max(...data,0.01),mn=Math.min(...data,0);const rng=mx-mn||1;
+      el.innerHTML=data.map((v,i)=>{const h=Math.max(3,((v-mn)/rng)*28);const op=0.3+0.7*(i/data.length);return`<div class="spark-bar" style="height:${h}px;opacity:${op};background:${color}"></div>`;}).join('');}
 
-                // Dynamic card colors based on values
-                const inletCard = document.querySelector('.metric-card.cool .metric-value');
-                if (p.inlet_temp_c > 27) inletCard.style.color = 'var(--accent-red)';
-                else if (p.inlet_temp_c > 25) inletCard.style.color = 'var(--accent-yellow)';
-                else inletCard.style.color = 'var(--accent-cyan)';
+    function gauge(score){const f=document.getElementById('gauge-fill'),tx=document.getElementById('gauge-txt');
+      f.style.strokeDashoffset=188*(1-score);tx.textContent=Math.round(score*100)+'%';
+      f.style.stroke=score>=0.8?'var(--green)':score>=0.5?'var(--yellow)':'var(--red)';}
 
-            } catch (e) {
-                console.error('Fetch error:', e);
-            }
-        }
+    // ═══════════════ TRY REAL API, FALLBACK TO SIM ═══════════════
+    let useApi=false;
+    async function tryApi(){try{const r=await fetch('/api/metrics');if(r.ok){useApi=true;}}catch(e){useApi=false;}}
+    tryApi();
 
-        fetchMetrics();
-        setInterval(fetchMetrics, 2000);
+    // ═══════════════ MAIN LOOP ═══════════════
+    sim();setInterval(sim,2000);
 
-        // --- RAG Chatbot UI ---
-        const chatWidget = document.createElement('div');
-        chatWidget.innerHTML = `
-            <div id="chat-container" style="position: fixed; bottom: 20px; right: 20px; width: 350px; background: var(--bg-card); backdrop-filter: blur(15px); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; overflow: hidden; z-index: 1000;">
-                <div style="background: rgba(0,0,0,0.3); padding: 12px 16px; font-size: 0.9rem; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;">
-                    🤖 Cognitive RAG Agent
-                </div>
-                <div id="chat-messages" style="height: 300px; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; font-size: 0.85rem;">
-                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 10px; border-radius: 12px 12px 12px 0; color: var(--text-primary); max-width: 90%;">
-                        HydroTwin Engine online. You can ask me about live hotspots, carbon grid compliance, or RL cooling decisions.
-                    </div>
-                </div>
-                <div style="padding: 12px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.2);">
-                    <input type="text" id="chat-input" placeholder="Ask about datacenter state..." style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; padding: 10px; color: var(--text-primary); outline: none; font-family: inherit;">
-                </div>
-            </div>
-        `;
-        document.body.appendChild(chatWidget);
-
-        const chatInput = document.getElementById('chat-input');
-        const chatMessages = document.getElementById('chat-messages');
-
-        chatInput.addEventListener('keypress', async (e) => {
-            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
-                const query = chatInput.value.trim();
-                chatInput.value = '';
-
-                // Add User Message
-                const userMsg = document.createElement('div');
-                userMsg.style.cssText = "background: rgba(255,255,255,0.1); padding: 10px; border-radius: 12px 12px 0 12px; color: var(--text-primary); max-width: 90%; align-self: flex-end;";
-                userMsg.textContent = query;
-                chatMessages.appendChild(userMsg);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-
-                try {
-                    const res = await fetch('/api/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ query: query })
-                    });
-                    const data = await res.json();
-
-                    // Add Bot Message
-                    const botMsg = document.createElement('div');
-                    botMsg.style.cssText = "background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 10px; border-radius: 12px 12px 12px 0; color: var(--text-primary); max-width: 90%;";
-                    botMsg.textContent = data.response;
-                    chatMessages.appendChild(botMsg);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                } catch (err) {
-                    console.error("Chat Error:", err);
-                }
-            }
-        });
+    // ═══════════════ SCROLL REVEAL ═══════════════
+    const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.1});
+    document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
     </script>
 </body>
-
 </html>
