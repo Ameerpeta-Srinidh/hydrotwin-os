@@ -484,7 +484,7 @@ with tab2:
             if val == "warning": return "color: #f59e0b"
             return "color: #10b981"
 
-        st.dataframe(df_det.style.applymap(_sev_color, subset=["Severity"]), use_container_width=True)
+        st.dataframe(df_det.style.map(_sev_color, subset=["Severity"]), use_container_width=True)
 
     st.markdown("##### Ensemble Architecture")
     st.code("""class SensorAnomalyDetector:          # Ensemble combining:
